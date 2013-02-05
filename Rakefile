@@ -6,23 +6,21 @@ OBJECTS = ['shader.o']
 
 task :default => "lib/glutil.a"
 
-def cc_link(target, opts={})
-    objects = opts[:objects] || []
-    libraries = opts[:libraries] || []
-    sh "g++ -std=c++11 -Wall -Wextra -pedantic -o#{target} #{objects.reduce{|s,o| " #{s} #{o} "}} #{libraries.map{|l| "-l#{l}"}.reduce{|s,l| "#{s} #{l} " }}"
-end
-
 def cc(source,opts={})
     includeDirs = opts[:includeDirs] || []
     sIncludeDirs = includeDirs.map{|d| "-I#{d}"}.join " "
     sh "g++ -g -std=c++11 #{sIncludeDirs} -Wall -Wextra -pedantic -c #{source}"
 end
 
+def static_lib(target,objects)
+    sh "ar crf #{target} #{objects.join ' '}"
+end
+
 directory 'lib'
 
 desc "Create glutil library"
 file "lib/glutil.a" => OBJECTS + ['lib'] do
-    sh "ar crf lib/glutil.a #{OBJECTS.join " "}"
+    static_lib('lib/glutil.a',OBJECTS)
 end
 
 desc "Remove temporary files"
@@ -33,7 +31,7 @@ end
 desc "Remove all generated files"
 task :clobber do
     Task[:clean].invoke
-    sh "rm test"
+    sh "rm lib/glutil.a"
 end
 
 rule ".o" => lambda {|obj| 'src/' + File.basename(obj,'.o') + '.cpp'} do |t|
