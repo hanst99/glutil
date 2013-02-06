@@ -4,7 +4,7 @@ require 'rake/loaders/makefile'
 SOURCE_FILES = FileList['src/**/*.cpp']
 OBJECTS = ['shader.o']
 
-task :default => "lib/glutil.a"
+task :default => "lib/libglutil.a"
 
 def cc(source,opts={})
     includeDirs = opts[:includeDirs] || []
